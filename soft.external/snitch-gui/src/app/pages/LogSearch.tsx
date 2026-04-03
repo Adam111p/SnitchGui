@@ -120,7 +120,7 @@ export default function LogSearch() {
               variant="contained"
               onClick={() => {
                 setPaginationModel((prev) => ({ ...prev, page: 0 })); // Reset do 1 strony przy nowym szukaniu
-                     showNotification('Niec nie działa  koniec świata!', 'error');
+                showNotification('Niec nie działa  koniec świata!', 'error');
               }}
             >
               Szukaj
