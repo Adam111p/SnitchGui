@@ -10,10 +10,11 @@ export const useLogs = (params: LogQueryParams) => {
       const { data } = await apiClient.get('/log-event/search', {
         params: {
           ...params,
-          page: params.page + 1,
+          page: (params.page || 0) + 1,
         },
       });
       return data;
     },
+    placeholderData: (previousData) => previousData,
   });
 };

@@ -7,6 +7,7 @@ import {
   MenuItem,
   Button,
   Typography,
+  CircularProgress,
 } from '@mui/material';
 import {
   DataGrid,
@@ -34,7 +35,7 @@ export default function LogSearch() {
   const [serviceName, setServiceName] = useState('');
   const [dateFrom, setDateFrom] = useState<DateTime | null>(null);
   const [dateTo, setDateTo] = useState<DateTime | null>(null);
-
+  const { showNotification } = useNotification();
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
     page: 0,
     pageSize: 10,
@@ -48,10 +49,10 @@ export default function LogSearch() {
     { field: 'createdAt', headerName: 'Data', width: 180 },
     { field: 'level', headerName: 'Level', width: 100 },
     { field: 'serviceName', headerName: 'Service', width: 150 },
-    { field: 'podName', headerName: 'Pod', width: 150 },
-    { field: 'message', headerName: 'Wiadomość', flex: 1 },
+    { field: 'podName', headerName: 'Pod', width: 150, sortable: false },
+    { field: 'message', headerName: 'Wiadomość', flex: 1, sortable: false },
   ];
-  const { data, isLoading } = useLogs({
+  const { data, isLoading, isError } = useLogs({
     page: paginationModel.page,
     pageSize: paginationModel.pageSize,
     sortBy: sortModel[0]?.field,
@@ -62,8 +63,11 @@ export default function LogSearch() {
 
     sortOrder: sortModel[0]?.sort as 'asc' | 'desc',
   });
-
-  const { showNotification } = useNotification();
+  useEffect(() => {
+    if (isError) {
+      showNotification('Błąd podczas ładowania logów', 'error');
+    }
+  }, [isError, showNotification]);
   return (
     <LocalizationProvider dateAdapter={AdapterLuxon}>
       <Box sx={{ height: '100%', width: '100%' }}>
@@ -115,16 +119,6 @@ export default function LogSearch() {
               onChange={(val) => setDateTo(val)}
               slotProps={{ textField: { size: 'small' } }}
             />
-
-            <Button
-              variant="contained"
-              onClick={() => {
-                setPaginationModel((prev) => ({ ...prev, page: 0 })); // Reset do 1 strony przy nowym szukaniu
-                showNotification('Niec nie działa  koniec świata!', 'error');
-              }}
-            >
-              Szukaj
-            </Button>
           </Stack>
         </Paper>
 
