@@ -12,14 +12,11 @@ import {
   IconButton,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
-import { Search, History, Settings } from '@mui/icons-material';
+import { Search, History } from '@mui/icons-material';
 import { Link, Outlet } from 'react-router-dom';
 import { useState } from 'react';
-import { AppBar, DrawerHeader, drawerWidth, Main } from './customMain';
+import { AppBar, Main } from './customMain';
 
 export function App() {
   const [open, setOpen] = useState(false);

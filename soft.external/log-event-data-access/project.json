@@ -1,0 +1,9 @@
+{
+  "name": "log-event-data-access",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "log-event-data-access/src",
+  "projectType": "library",
+  "tags": [],
+  "// targets": "to see all targets run: nx show project log-event-data-access --web",
+  "targets": {}
+}

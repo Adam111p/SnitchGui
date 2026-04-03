@@ -18,6 +18,7 @@ import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
 import { DateTime } from 'luxon';
 import { useNotification } from '../context/NotificationContext';
+import { useLogs } from '../lib/data-access/use-logs';
 
 // Mapowanie z Twojego DTO / Enuma
 enum LogLevel {
@@ -30,14 +31,10 @@ enum LogLevel {
 export default function LogSearch() {
   // --- Stan Filtrów ---
   const [level, setLevel] = useState<string>('');
-  const [podName, setPodName] = useState('');
+  const [serviceName, setServiceName] = useState('');
   const [dateFrom, setDateFrom] = useState<DateTime | null>(null);
   const [dateTo, setDateTo] = useState<DateTime | null>(null);
 
-  // --- Stan Tabeli (Server-side) ---
-  const [rows, setRows] = useState([]);
-  const [totalRows, setTotalRows] = useState(0);
-  const [loading, setLoading] = useState(false);
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
     page: 0,
     pageSize: 10,
@@ -54,35 +51,18 @@ export default function LogSearch() {
     { field: 'podName', headerName: 'Pod', width: 150 },
     { field: 'message', headerName: 'Wiadomość', flex: 1 },
   ];
+  const { data, isLoading } = useLogs({
+    page: paginationModel.page,
+    pageSize: paginationModel.pageSize,
+    sortBy: sortModel[0]?.field,
+    level: level,
+    serviceName: serviceName,
+    dateFrom: dateFrom?.toISO() ?? undefined,
+    dateTo: dateTo?.toISO() ?? undefined,
 
-  // --- Funkcja Pobierania Danych ---
-  const fetchLogs = async () => {
-    setLoading(true);
-    try {
-      // Tutaj wstawisz swój axios.get('/api/logs', { params: ... })
-      console.log('Pobieram dane dla:', {
-        level,
-        podName,
-        dateFrom: dateFrom?.toISO(),
-        dateTo: dateTo?.toISO(),
-        page: paginationModel.page,
-        pageSize: paginationModel.pageSize,
-        sort: sortModel[0],
-      });
+    sortOrder: sortModel[0]?.sort as 'asc' | 'desc',
+  });
 
-      // Symulacja API
-      // const response = await api.getLogs({...});
-      // setRows(response.data);
-      // setTotalRows(response.total);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Trigger przy zmianie strony lub sortowania
-  useEffect(() => {
-    fetchLogs();
-  }, [paginationModel, sortModel]);
   const { showNotification } = useNotification();
   return (
     <LocalizationProvider dateAdapter={AdapterLuxon}>
@@ -115,11 +95,11 @@ export default function LogSearch() {
             </TextField>
 
             <TextField
-              label="Pod Name"
+              label="Nazwa serwisu"
               variant="outlined"
               size="small"
-              value={podName}
-              onChange={(e) => setPodName(e.target.value)}
+              value={serviceName}
+              onChange={(e) => setServiceName(e.target.value)}
             />
 
             <DatePicker
@@ -140,8 +120,7 @@ export default function LogSearch() {
               variant="contained"
               onClick={() => {
                 setPaginationModel((prev) => ({ ...prev, page: 0 })); // Reset do 1 strony przy nowym szukaniu
-                fetchLogs();
-                showNotification('Niec nie działa  koniec świata!', 'error');
+                     showNotification('Niec nie działa  koniec świata!', 'error');
               }}
             >
               Szukaj
@@ -152,10 +131,10 @@ export default function LogSearch() {
         {/* Tabela MUI X */}
         <Paper sx={{ height: 600, width: '100%' }}>
           <DataGrid
-            rows={rows}
+            rows={data?.items || []}
             columns={columns}
-            loading={loading}
-            rowCount={totalRows}
+            loading={isLoading}
+            rowCount={data?.total || 0}
             // Konfiguracja Server-side
             paginationMode="server"
             sortingMode="server"
